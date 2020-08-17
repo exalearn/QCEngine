@@ -1,4 +1,6 @@
 """Tests for NWChem functionality"""
+import os
+
 import numpy as np
 import pytest
 import qcelemental as qcel
@@ -271,3 +273,27 @@ H                    20.850425490000     3.414376060000     2.960577230000"""
     )
 
     assert "insufficient internal variables" not in result.error.error_message  # Ok if it crashes for other reasons
+
+
+def test_restart(nh2, tmpdir):
+    """Test where we intentionally leave behind some restart files"""
+    # Run NH2 without restart
+    resi = {"molecule": nh2, "driver": "energy", "model": {"method": "b3lyp", "basis": "3-21g"}}
+    qcng.compute(resi, "nwchem", local_options={"scratch_directory": str(tmpdir)},
+                 raise_error=True, return_dict=False)
+    assert len(os.listdir(tmpdir)) == 0
+
+    # Run NH2
+    resi["keywords"] = {"restart_name": "nh2"}
+    res = qcng.compute(resi, "nwchem", local_options={"scratch_directory": str(tmpdir)},
+                       raise_error=True, return_dict=False)
+
+    # Make sure the restart files are there
+    assert len(os.listdir(tmpdir)) == 1
+    assert os.path.isdir(os.path.join(tmpdir, "nh2"))
+    assert "= startup" in res.stdout
+
+    # Run it again and see if the job was a restart
+    res = qcng.compute(resi, "nwchem", local_options={"scratch_directory": str(tmpdir)},
+                       raise_error=True, return_dict=False)
+    assert "= restart" in res.stdout

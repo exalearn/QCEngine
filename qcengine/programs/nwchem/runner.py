@@ -118,8 +118,15 @@ class NWChemHarness(ProgramHarness):
         """
         self.found(raise_error=True)
 
+        # Determine whether to store a restart directory
+        input_model = input_model.copy()  # Do not alter the input value
+        scratch_name = input_model.keywords.pop("restart_name", None)
+
+        # Build the rest of the input deck
         job_inputs = self.build_input(input_model, config)
-        success, dexe = self.execute(job_inputs)
+
+        # Execute the code
+        success, dexe = self.execute(job_inputs, scratch_name=scratch_name)
 
         if "There is an error in the input file" in dexe["stdout"]:
             raise InputError(dexe["stdout"])
@@ -216,7 +223,8 @@ task python
             inputs["command"],
             inputs["infiles"],
             ["nwchem.hess", "nwchem.grad"],
-            scratch_messy=False,
+            scratch_name=scratch_name,
+            scratch_messy=scratch_name is not None,
             scratch_exist_ok=True,
             scratch_directory=inputs["scratch_directory"],
         )
@@ -250,7 +258,7 @@ task python
             retres = retres.tolist()
 
         # Get the formatted properties
-        build_out(qcvars)
+        build_out(qcvars, verbose=0)
         atprop = build_atomicproperties(qcvars)
 
         # Format them inout an output

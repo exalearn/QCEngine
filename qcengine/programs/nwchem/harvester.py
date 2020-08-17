@@ -186,7 +186,7 @@ def harvest_outfile_pass(outtext):
         )
         if mobj:
             logger.debug("matched scs-mp2")
-            print("matched scs-mp2", mobj.groups())
+            logger.debug("matched scs-mp2", mobj.groups())
             psivar["MP2 SAME-SPIN CORRELATION ENERGY"] = mobj.group(1)
             psivar["MP2 OPPOSITE-SPIN CORRELATION ENERGY"] = mobj.group(3)
 
@@ -280,7 +280,7 @@ def harvest_outfile_pass(outtext):
 
             if mobj2:
                 mbpt_plain = cc_name.replace("\\", "").replace("MBPT", "MP").replace("(", "").replace(")", "")
-                print(f"matched tce {mbpt_plain} dipole moment")
+                logger.debug(f"matched tce {mbpt_plain} dipole moment")
                 # only pulling Debye
                 psivar[f"{mbpt_plain} DIPOLE"] = np.array([mobj2.group(1), mobj2.group(3), mobj2.group(5)])
 
@@ -330,7 +330,7 @@ def harvest_outfile_pass(outtext):
             if mobj2:
                 cc_plain = cc_name.replace("\\", "")
                 cc_corr = cc_plain.replace("CCSD", "")
-                print(f"matched tce {cc_plain} dipole moment")
+                logger.debug(f"matched tce {cc_plain} dipole moment")
 
                 # only pulling Debye
                 psivar[f"{cc_plain} DIPOLE"] = np.array([mobj2.group(1), mobj2.group(3), mobj2.group(5)])
@@ -362,7 +362,7 @@ def harvest_outfile_pass(outtext):
             if mobj:
                 logger.debug(f"matched {cc_name}")
                 mobj3 = re.search(r"Wavefunction type : Restricted open-shell Hartree-Fock", outtext, re.MULTILINE)
-                print(f"matched {cc_name}", mobj.groups())
+                logger.debug(f"matched {cc_name}", mobj.groups())
                 if mobj3:
                     pass
                 else:
@@ -382,7 +382,7 @@ def harvest_outfile_pass(outtext):
                 re.MULTILINE,
             )
             if mobj2:
-                print(f"matched tce dipole moment")
+                logger.debug(f"matched tce dipole moment")
 
                 # only pulling Debye
                 psivar[f"CURRENT DIPOLE"] = np.array([mobj2.group(1), mobj2.group(3), mobj2.group(5)])
@@ -404,7 +404,7 @@ def harvest_outfile_pass(outtext):
 
         if mobj:
             logger.debug("matched ccsd")
-            print("matched ccsd")
+            logger.debug("matched ccsd")
             psivar["CCSD CORRELATION ENERGY"] = mobj.group(2)
             psivar["CCSD TOTAL ENERGY"] = mobj.group(3)
 
@@ -444,7 +444,7 @@ def harvest_outfile_pass(outtext):
         # SCS-CCSD included
         if mobj:
             logger.debug("matched scs-ccsd")
-            print("matched scs-ccsd", mobj.groups())
+            logger.debug("matched scs-ccsd", mobj.groups())
             psivar["CCSD SAME-SPIN CORRELATION ENERGY"] = mobj.group(1)
             psivar["CCSD OPPOSITE-SPIN CORRELATION ENERGY"] = mobj.group(3)
             # psivar['CCSD SAME-SPIN CORRELATION ENERGY'] = psivar['SCS-CCSD SAME-SPIN CORRELATION ENERGY'] = (
@@ -482,11 +482,11 @@ def harvest_outfile_pass(outtext):
         # mobj.group(4) = excitation energy (eV)
 
         if mobj:
-            print(mobj)
+            logger.debug(mobj)
             ext_energy = {}  # dic
 
             ext_energy_list = []
-            print(f"matched eom-{cc_name}")
+            logger.debug(f"matched eom-{cc_name}")
             for mobj_list in mobj:
                 logger.debug("matched EOM-%s - %s symmetry" % (cc_name, mobj_list[0]))  # cc_name, symmetry
                 logger.debug(mobj_list)
@@ -544,7 +544,7 @@ def harvest_outfile_pass(outtext):
         if mobj:
             logger.debug("matched TDDFT with transition moments")
             for mobj_list in mobj:
-                print(mobj_list)
+                logger.debug(mobj_list)
                 # in eV
                 psivar[f"TDDFT ROOT {mobj_list[0]} EXCITATION ENERGY - {mobj_list[1]} SYMMETRY"] = mobj_list[2]
                 psivar[f"TDDFT ROOT {mobj_list[0]} EXCITED STATE ENERGY - {mobj_list[1]} SYMMETRY"] = psivar[
